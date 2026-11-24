@@ -1,15 +1,18 @@
-# [Project name]
+# Bot Discord professionnel
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Bot Discord de modération en JavaScript, avec commandes préfixées, logs et whitelist persistante des bots.
 
 ## Run & Operate
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/scripts run discord-bot` — start the Discord bot
+- `pnpm --filter @workspace/scripts run discord-bot:test` — test the Discord bot commands
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `DATABASE_URL`, `DISCORD_TOKEN`
+- Optional env: `BOT_PREFIX` (default `+`), `LOG_CHANNEL_ID`
 
 ## Stack
 
@@ -22,23 +25,28 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `scripts/src/discord-bot/` — bot entry point, command handlers, persistence and tests
+- `lib/db/src/schema/discord-bot.ts` — persistent Discord bot tables
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- All Discord commands are message-prefix commands; no slash-command registration is used.
+- Whitelist checks fail closed: a database error never triggers an automatic bot kick.
+- Channel message deletion cannot be undone; `+unwipe` restores saved channel settings only.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Moderation commands, role-based authorization, audit logging, persistent user blacklist and bot whitelist. Unapproved bots are removed on join when the bot has the required Discord permissions.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Use JavaScript and Discord.js v14; default command prefix is `+`.
+- Never add slash commands.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Enable Message Content Intent and Server Members Intent in the Discord Developer Portal.
+- Apply new database tables to development with `pnpm --filter @workspace/db run push`.
 
 ## Pointers
 
